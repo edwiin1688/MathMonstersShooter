@@ -119,7 +119,13 @@ export const SoundManager = {
     // BGM System
     bgmTimer: null,
     isPlayingBGM: false,
-    bgmNotes: [261.63, 329.63, 392.00, 329.63, 293.66, 392.00, 329.63, 293.66], // Simple gentle loop
+    // Energetic Arpeggio (C Major -> F Major -> G Major -> C Major)
+    bgmNotes: [
+        261.63, 329.63, 392.00, 523.25, 392.00, 329.63, // C
+        349.23, 440.00, 523.25, 698.46, 523.25, 440.00, // F
+        392.00, 493.88, 587.33, 783.99, 587.33, 493.88, // G
+        261.63, 329.63, 392.00, 523.25, 392.00, 329.63  // C
+    ],
     bgmIndex: 0,
 
     playBGM() {
@@ -163,8 +169,8 @@ export const SoundManager = {
         }
 
         this.bgmIndex++;
-        // 80 BPM approx (750ms)
-        this.bgmTimer = setTimeout(() => this.scheduleBGM(), 750);
+        // Fast interval for energetic feel (150ms)
+        this.bgmTimer = setTimeout(() => this.scheduleBGM(), 150);
     },
 
     playBGMNote(freq) {
@@ -172,17 +178,17 @@ export const SoundManager = {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
 
-        osc.type = 'sine'; // Sine wave is relaxing
+        osc.type = 'triangle'; // Triangle is energetic but not too harsh
         osc.frequency.setValueAtTime(freq, t);
 
-        // Soft envelope
+        // Short, punchy envelope
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.05, t + 0.1); // Fad in
-        gain.gain.linearRampToValueAtTime(0, t + 0.7); // Fade out
+        gain.gain.linearRampToValueAtTime(0.1, t + 0.02); // Fast attack
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15); // Fast decay
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
-        osc.stop(t + 0.75); // Stop slightly after fade out
+        osc.stop(t + 0.15);
     }
 };

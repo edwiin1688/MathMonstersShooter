@@ -33,7 +33,7 @@ const messages = {
         paused: '遊戲暫停',
         resume: '繼續遊戲',
         exit: '離開遊戲',
-        you_win: '恭喜過關!'
+        you_win: '恭喜你破關!'
     }
 }
 

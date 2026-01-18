@@ -66,7 +66,7 @@ src/
 
 #### 完整字元清單 (Copy This):
 ```text
-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-*/=?:.%! ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙數學怪物射擊手心算戰鬥機開始任務得分生命等待目標遊戲結束最終分數重新載入中暫停繼續離開
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-*/=?:.%! ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙數學怪物射擊手心算戰鬥機開始任務得分生命等待目標遊戲結束最終分數重新載入中暫停繼續離開恭喜你破關差一點錯了不對唷唉怎麼可能好棒讚真厲害完美百一
 ```
 
 ### 更新流程 (Update Workflow)
