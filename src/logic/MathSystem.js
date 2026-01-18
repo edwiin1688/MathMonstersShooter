@@ -4,7 +4,8 @@ export class MathSystem {
   }
 
   generateProblem() {
-    const isAddition = Math.random() > 0.5;
+    // Ensure 50/50 chance for addition and subtraction
+    const isAddition = Math.random() < 0.5;
     let a, b, result, operator;
 
     if (isAddition) {
@@ -37,13 +38,13 @@ export class MathSystem {
       // Generate distractors close to the answer (+/- 1 to 3)
       const offset = (Math.floor(Math.random() * 3) + 1) * (Math.random() > 0.5 ? 1 : -1);
       const val = correctValue + offset;
-      
+
       // Ensure positive options and simple numbers
-      if (val >= 0 && val <= 40) { 
+      if (val >= 0 && val <= 40) {
         options.add(val);
       } else {
         // Fallback random if offset pushes out of bounds (rare for 0-20)
-        options.add(Math.floor(Math.random() * 20)); 
+        options.add(Math.floor(Math.random() * 20));
       }
     }
     // Shuffle options
