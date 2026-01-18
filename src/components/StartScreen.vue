@@ -103,8 +103,9 @@ p {
 
 .version {
     margin-top: 1rem;
-    font-size: 0.8rem;
-    color: #666;
+    font-size: 1rem; /* Increased size for better visibility */
+    color: #888; /* Slightly lighter for readability against dark bg */
     font-family: monospace;
+    font-weight: bold;
 }
 </style>

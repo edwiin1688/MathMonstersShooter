@@ -22,6 +22,7 @@ export class GameEngine {
         this.spawnInterval = 2500;
         this.slowDownTimer = 0;
         this.levelUpRestTimer = 0;
+        this.consecutiveWrong = 0; // Track consecutive wrong answers
 
         this.score = 0;
         this.lives = 3;
@@ -69,6 +70,7 @@ export class GameEngine {
         this.spawnInterval = 2500;
         this.slowDownTimer = 0;
         this.levelUpRestTimer = 0;
+        this.consecutiveWrong = 0;
         this.entityManager.reset();
         this.paused = false;
         this.state = 'playing';
@@ -81,6 +83,8 @@ export class GameEngine {
         this.callbacks.onScore(this.score);
         this.callbacks.onLives(this.lives);
         this.callbacks.onOptions([]);
+
+        SoundManager.playBGM(); // Start BGM
 
         this.lastTime = performance.now();
         requestAnimationFrame(this.loop);
@@ -97,6 +101,7 @@ export class GameEngine {
 
     stop() {
         this.state = 'idle';
+        SoundManager.stopBGM();
     }
 
     handleAnswer(value) {
@@ -106,6 +111,7 @@ export class GameEngine {
         if (!closestMonster) return;
 
         if (closestMonster.answer === value) {
+            this.consecutiveWrong = 0; // Reset consecutive wrong count
             SoundManager.shoot();
             this.entityManager.addBullet(
                 this.entityManager.player.x,
@@ -114,6 +120,7 @@ export class GameEngine {
                 closestMonster.y
             );
         } else {
+            this.consecutiveWrong++;
             SoundManager.wrong();
             this.slowDownTimer = 1000; // Slow down for 1 second
             this.callbacks.onWrongAnswer && this.callbacks.onWrongAnswer();
@@ -211,10 +218,21 @@ export class GameEngine {
         // Handle slow down effect
         let globalSpeedMultiplier = 1;
 
-        // 1. Wrong Answer Slow Down (Highest Priority/Biggest Impact)
+        // 1. Wrong Answer Slow Down
         if (this.slowDownTimer > 0) {
             this.slowDownTimer -= dt;
-            globalSpeedMultiplier *= 0.5; // Slow down by half
+            globalSpeedMultiplier *= 0.5; // Base slow down (50%)
+
+            // Extra relief for consecutive errors
+            if (this.consecutiveWrong > 1) {
+                globalSpeedMultiplier *= 0.8; // Further slow down by 20% if struggling
+            }
+        } else {
+            // If timer expired, but we haven't answered correctly, should we keep consecutive count?
+            // Usually yes, until a correct answer.
+            // But the slow down effect is tied to the timer. 
+            // So if timer expires, speed returns to normal.
+            // If they answer wrong again, timer resets and consecutive count increments.
         }
 
         // 2. Level Up Rest (20% slow down)
@@ -246,8 +264,23 @@ export class GameEngine {
 
     spawnMonster() {
         const problem = this.mathSystem.generateProblem();
-        const margin = 50;
-        const x = Math.random() * (this.width - margin * 2) + margin;
+
+        // Calculate safe X position ensuring text doesn't clip
+        // Use same font setting as draw() to measure
+        const fs = Math.max(16, Math.floor(24 * this.scaleFactor * 1.5));
+        this.ctx.font = `bold ${fs}px "Arial Rounded MT Bold", "ZhuyinFont", sans-serif`;
+        const textW = this.ctx.measureText(problem.equation).width;
+
+        const minX = textW / 2 + 20; // 20px padding
+        const maxX = this.width - textW / 2 - 20;
+
+        // Ensure maxX > minX. If not (screen too narrow), use center
+        let x;
+        if (maxX > minX) {
+            x = Math.random() * (maxX - minX) + minX;
+        } else {
+            x = this.width / 2;
+        }
 
         // Calculate speed based on kills: Base 0.5 + 10% (0.05) per kill
         const kills = Math.floor(this.score / 10);
@@ -304,11 +337,13 @@ export class GameEngine {
 
     gameOver() {
         this.state = 'gameover';
+        SoundManager.stopBGM();
         this.callbacks.onGameOver(this.score, false); // false = lost
     }
 
     gameWin() {
         this.state = 'gamewin';
+        SoundManager.stopBGM();
         this.callbacks.onGameOver(this.score, true); // true = win
     }
 

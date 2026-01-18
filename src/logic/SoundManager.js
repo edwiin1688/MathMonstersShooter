@@ -104,5 +104,61 @@ export const SoundManager = {
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(t + 0.3);
+    },
+
+    // BGM System
+    bgmTimer: null,
+    isPlayingBGM: false,
+    bgmNotes: [261.63, 329.63, 392.00, 329.63, 293.66, 392.00, 329.63, 293.66], // Simple gentle loop
+    bgmIndex: 0,
+
+    playBGM() {
+        if (this.isPlayingBGM) return;
+        this.isPlayingBGM = true;
+        this.bgmIndex = 0;
+        this.scheduleBGM();
+    },
+
+    stopBGM() {
+        this.isPlayingBGM = false;
+        if (this.bgmTimer) {
+            clearTimeout(this.bgmTimer);
+            this.bgmTimer = null;
+        }
+    },
+
+    scheduleBGM() {
+        if (!this.isPlayingBGM) return;
+
+        if (!this.muted) {
+            this.init();
+            if (this.ctx.state === 'suspended') this.ctx.resume();
+
+            const freq = this.bgmNotes[this.bgmIndex % this.bgmNotes.length];
+            this.playBGMNote(freq);
+        }
+
+        this.bgmIndex++;
+        // 80 BPM approx (750ms)
+        this.bgmTimer = setTimeout(() => this.scheduleBGM(), 750);
+    },
+
+    playBGMNote(freq) {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine'; // Sine wave is relaxing
+        osc.frequency.setValueAtTime(freq, t);
+
+        // Soft envelope
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.05, t + 0.1); // Fad in
+        gain.gain.linearRampToValueAtTime(0, t + 0.7); // Fade out
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(t + 0.75); // Stop slightly after fade out
     }
 };
